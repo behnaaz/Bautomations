@@ -7,9 +7,6 @@ if my appIsRunning("iTerm2") then
 		set skipDev to false
 		set skipGozar to false
 		repeat with w in windows
-			if (count of (tabs of w)) is 0 then
-				exit repeat
-			end if
 			set s to w's current tab's current session
 			set thetitle to get name of s
 			if thetitle is "ssh" then
@@ -24,17 +21,34 @@ if my appIsRunning("iTerm2") then
 				end if
 			end if
 		end repeat
-		if skipDev is false then
-    			set newWindow to (create window with default profile)
-    			tell current session of newWindow
-        			write text "dev"
-    			end tell
+		if skipDev is false and (count of (tabs of current window)) < 5 then
+				tell application "iTerm2"
+					  tell current window
+				  	  set terminalContent to text of s
+					  if terminalContent contains "dev" then 
+				 	     set skipDev to true 
+
+					  else		
+	        				set newTab to (create tab with default profile)
+        					tell current session of newTab
+	    						write text "dev"
+        						set skipDev to true 
+        						delay 10
+       				 		end tell
+					  end if
+  					end tell
+				end tell
 		end if
-		if skipGozar is false then
-    			set newWindow to (create window with default profile)
-    			tell current session of newWindow
-        			write text "cd ~/gozar; pwd"
-    			end tell
+		if skipGozar is false and (count of (tabs of current window)) < 5 then
+				tell application "iTerm2"
+					tell current window
+	        				set newTab to (create tab with default profile)
+        					tell current session of newTab
+        						write text "cd ~/gozar; pwd"
+        						set skipGozar to true
+        					end tell	
+    					end tell
+				end tell
 		end if
 	end tell
 end if
